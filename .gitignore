@@ -1,0 +1,4 @@
+src/postgres/postgresdata
+src/synapse/media_store
+src/synapse/*.log.config
+src/synapse/*.signing.key
