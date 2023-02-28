@@ -51,6 +51,7 @@ services:
     # restart: unless-stopped
     volumes:
       - ./synapse:/data
+      - ./mautrix-telegram/registration.yaml:/data/brigres/telegram/registration.yaml
     networks:
       default:
         ipv4_address: 10.10.10.3
@@ -68,6 +69,20 @@ services:
     networks:
       default:
         ipv4_address: 10.10.10.4
+
+  mautrix-telegram:
+    image: dock.mau.dev/mautrix/telegram
+    container_name: mautrix-telegram
+    build:
+      context: ./mautrix-telegram
+    depends_on:
+      - matrix-element
+    # restart: unless-stopped
+    volumes:
+      - ./mautrix-telegram:/data:z
+    networks:
+      default:
+        ipv4_address: 10.10.10.10
 
 networks:
   default:

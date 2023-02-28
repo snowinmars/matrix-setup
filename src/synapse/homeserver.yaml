@@ -35,6 +35,8 @@ report_stats: true
 macaroon_secret_key: REMOVED FROM GIT
 form_secret: REMOVED FROM GIT
 signing_key_path: "/data/10.10.10.3.signing.key"
+app_service_config_files:
+  - /data/brigres/telegram/registration.yaml
 trusted_key_servers:
   - server_name: "matrix.org"
 

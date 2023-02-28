@@ -1,3 +1,11 @@
 sed -i 's/registration_shared_secret:.*/registration_shared_secret: REMOVED FROM GIT/g' ./synapse/homeserver.yaml
 sed -i 's/macaroon_secret_key:.*/macaroon_secret_key: REMOVED FROM GIT/g'               ./synapse/homeserver.yaml
 sed -i 's/form_secret:.*/form_secret: REMOVED FROM GIT/g'                               ./synapse/homeserver.yaml
+sed -i 's/shared_secret:.*/shared_secret: REMOVED FROM GIT/g'                           ./mautrix-telegram/config.yaml
+sed -i 's/as_token:.*/as_token: REMOVED FROM GIT/g'                                     ./mautrix-telegram/config.yaml
+sed -i 's/hs_token:.*/hs_token: REMOVED FROM GIT/g'                                     ./mautrix-telegram/config.yaml
+sed -i 's/api_id:.*/api_id: REMOVED FROM GIT/g'                                         ./mautrix-telegram/config.yaml
+sed -i 's/api_hash:.*/api_hash: REMOVED FROM GIT/g'                                     ./mautrix-telegram/config.yaml
+sed -i 's/as_token:.*/as_token: REMOVED FROM GIT/g'                                     ./mautrix-telegram/registration.yaml
+sed -i 's/hs_token:.*/hs_token: REMOVED FROM GIT/g'                                     ./mautrix-telegram/registration.yaml
+sed -i 's/sender_localpart:.*/sender_localpart: REMOVED FROM GIT/g'                     ./mautrix-telegram/registration.yaml

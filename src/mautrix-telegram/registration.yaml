@@ -1,0 +1,17 @@
+id: telegram
+as_token: REMOVED FROM GIT
+hs_token: REMOVED FROM GIT
+namespaces:
+    users:
+    - exclusive: true
+      regex: '@telegram_.*:10\.10\.10\.3'
+    - exclusive: true
+      regex: '@telegrambot:10\.10\.10\.3'
+    aliases:
+    - exclusive: true
+      regex: \#telegram_.*:10\.10\.10\.3
+url: http://10.10.10.10:29317
+sender_localpart: REMOVED FROM GIT
+rate_limited: false
+de.sorunome.msc2409.push_ephemeral: true
+push_ephemeral: true
