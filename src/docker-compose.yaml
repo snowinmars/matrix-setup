@@ -2,7 +2,7 @@ version: '2.3'
 services:
   matrix-ngx:
     container_name: matrix-ngx
-    image: snowinmars/matrix-ngx
+    image: snowinmars/matrix-ngx:1.0.0
     depends_on:
       - matrix-element
     # restart: unless-stopped
@@ -24,7 +24,7 @@ services:
 
   matrix-postgres:
     container_name: matrix-postgres
-    image: snowinmars/matrix-postgres
+    image: snowinmars/matrix-postgres:1.0.0
     build:
       context: ./postgres
       dockerfile: ./Dockerfile
@@ -43,7 +43,7 @@ services:
 
   matrix-synapse:
     container_name: matrix-synapse
-    image: matrixdotorg/synapse:latest
+    image: matrixdotorg/synapse:v1.77.0
     build:
       context: ./synapse
     depends_on:
@@ -58,7 +58,7 @@ services:
 
   matrix-element:
     container_name: matrix-element
-    image: vectorim/element-web:latest
+    image: vectorim/element-web:v1.11.23
     build:
       context: ./element
     depends_on:
@@ -71,7 +71,7 @@ services:
         ipv4_address: 10.10.10.4
 
   mautrix-telegram:
-    image: dock.mau.dev/mautrix/telegram
+    image: dock.mau.dev/mautrix/telegram:v0.13.0
     container_name: mautrix-telegram
     build:
       context: ./mautrix-telegram
@@ -86,5 +86,4 @@ services:
 
 networks:
   default:
-    external:
-      name: matrix_net
+    name: matrix_net

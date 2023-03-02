@@ -6,6 +6,8 @@ See notes about integration server at the [README.md](README.md).
 
 ## Telegram
 
+You can use any telegram account: you can use bot or you can use a real one.
+
 1. Create empty `./mautrix-telegram` directory:
 ```
 .
@@ -162,7 +164,7 @@ The following commands are used to handle external puppet state:
 - `ping` - get logged in or logged out state of your external puppet account
 - `username`/`displayname` - set external puppet account username/displayname, if puppet is not bot. Bot cannot set it's name using this command
 
-Mautrix telegram is double-puppeted bridge, so it use default matrix puppet. You can use it as is or replace default matrix puppet with you custom account using the following commands:
+Mautrix telegram is double-puppeted bridge, it use default matrix puppet. You can use it as is or replace default matrix puppet with you custom matrix account using the following commands:
 - `login-matrix` - allow the bridge to operate under matrix puppet account
 - `logout-matrix` - forbig the bridge to operate under matrix puppet account
 - `ping-matrix` - get logged in or logged out state of your matrix puppet account
