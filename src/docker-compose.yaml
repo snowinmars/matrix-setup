@@ -3,8 +3,6 @@ services:
   matrix-ngx:
     container_name: matrix-ngx
     image: snowinmars/matrix-ngx:1.0.0
-    depends_on:
-      - matrix-element
     # restart: unless-stopped
     build:
       context: ./ngx

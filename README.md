@@ -19,7 +19,7 @@ Matrix is an open standard and communication protocol for real-time communicatio
     - $SYNAPSE_PORT:            8080
     - $ELEMENTS_DOMAIN:         10.10.10.4   or elements.example.org
     - $ELEMENTS_PORT:           80
-    - $MAUTRIX_TELEGRAM_DOMAIN: 10.10.10.6   or mautrix-telegram.example.org
+    - $MAUTRIX_TELEGRAM_DOMAIN: 10.10.10.11   or mautrix-telegram.example.org
     - ###
     - # postgres settings
     - $POSTGRES_DB:          synapse
@@ -29,8 +29,9 @@ Matrix is an open standard and communication protocol for real-time communicatio
     - ###
     - # mautrix telegram settings
     - $BOT_USERNAME: telegrambot
-    - $TELEGRAM_API_ID:   11111   # from https://my.telegram.org/apps
-    - $TELEGRAM_API_HASH: 22222   # from https://my.telegram.org/apps
+    - $TELEGRAM_API_ID:   11111           # from https://my.telegram.org/apps
+    - $TELEGRAM_API_HASH: 22222           # from https://my.telegram.org/apps
+    - $TELEGRAM_BOT_ACCESS_KEY: 3333:aaaa # from @BotFather
 
 Every variables between files should match each other. It's good idea to add `.env` file and setup templating, but I will skip it in this guide for now. Replace it manually.
 
@@ -136,7 +137,7 @@ version: '2.3'
 services:
   matrix-postgres:
     container_name: matrix-postgres
-    image: snowinmars/matrix-postgres
+    image: snowinmars/matrix-postgres:1.0.0
     build:
       context: ./postgres
       dockerfile: ./Dockerfile
@@ -155,7 +156,7 @@ services:
 
   matrix-synapse:
     container_name: matrix-synapse
-    image: matrixdotorg/synapse:latest
+    image: matrixdotorg/synapse:v1.77.0
     build:
       context: ./synapse
     depends_on:
@@ -169,7 +170,7 @@ services:
 
   matrix-element:
     container_name: matrix-element
-    image: vectorim/element-web:latest
+    image: vectorim/element-web:v1.11.23
     build:
       context: ./element
     depends_on:
@@ -183,8 +184,7 @@ services:
 
 networks:
   default:
-    external:
-      name: matrix_net
+    name: matrix_net
 ```
 
 3. It should work fine with default postgres image, but postgres could complain about UTF locale, so:
@@ -198,7 +198,7 @@ ENV LANG C
 
 4. Create Element Config
 
-Default element config has `integrations_ui_url`/`integrations_rest_url`/`integrations_widgets_urls` properties pointing to `https://scalar.vector.im`. This is integration service settings: this service act as a proxy between mautrix bots and matrix itself.
+Default element config `./element/config.json` has `integrations_ui_url`/`integrations_rest_url`/`integrations_widgets_urls` properties pointing to `https://scalar.vector.im`. This is integration service settings: this service act as a proxy between mautrix bots and matrix itself.
 
 - If these settings are set, you will be able to click 'Room -> Room info -> Add widgets, bridges & bots -> Invite'
 - If these settings are null, the 'Add widgets, bridges & bots' button will be disabled
@@ -292,7 +292,7 @@ docker run -it --rm \
   -v "$PWD/synapse:/data" \
   -e SYNAPSE_SERVER_NAME=$SYNAPSE_DOMAIN \
   -e SYNAPSE_REPORT_STATS=yes \
-  matrixdotorg/synapse:latest generate
+  matrixdotorg/synapse:v1.77.0 generate
 ```
 
 7. Comment out sqlite database (as we have setup postgres to replace this) in `./synapse/homeserver.yaml`:
@@ -379,9 +379,7 @@ server {
 # ./docker-compose.yaml
 matrix-ngx:
    container_name: matrix-ngx
-   image: snowinmars/matrix-ngx
-   depends_on:
-      - matrix-element
+   image: snowinmars/matrix-ngx:1.0.0
    # restart: unless-stopped
    build:
       context: ./ngx
@@ -413,11 +411,11 @@ server {
     server_name $NGX_DOMAIN;
 
     location /_matrix {
-        proxy_pass http://$SYNAPSE_DOMAIN:$SYNAPSE_PORT;
+        proxy_pass http://$SYNAPSE_DOMAIN:8008; # beware of port!
     }
 
     location /_synapse/client {
-        proxy_pass http://$SYNAPSE_DOMAIN:$SYNAPSE_PORT;
+        proxy_pass http://$SYNAPSE_DOMAIN:8008; # beware of port!
     }
 
     location / {
@@ -430,11 +428,11 @@ server {
     server_name $NGX_DOMAIN;
 
     location /_matrix {
-        proxy_pass http://$SYNAPSE_DOMAIN:$SYNAPSE_PORT;
+        proxy_pass http://$SYNAPSE_DOMAIN:8008; # beware of port!
     }
 
     location /_synapse/client {
-        proxy_pass http://$SYNAPSE_DOMAIN:$SYNAPSE_PORT;
+        proxy_pass http://$SYNAPSE_DOMAIN:8008; # beware of port!
     }
 
     location / {
