@@ -1,0 +1,14 @@
+id: discord
+url: http://10.10.10.12:29334
+as_token: $MAUTRIX_TELEGRAM_REGISTRATION_AS_TOKEN
+hs_token: $MAUTRIX_TELEGRAM_REGISTRATION_HS_TOKEN
+sender_localpart: $MAUTRIX_TELEGRAM_REGISTRATION_SENDER_LOCALPART
+rate_limited: false
+namespaces:
+    users:
+        - regex: ^@discordbot:10\.10\.10\.3$
+          exclusive: true
+        - regex: ^@discord_.*:10\.10\.10\.3$
+          exclusive: true
+de.sorunome.msc2409.push_ephemeral: true
+push_ephemeral: true

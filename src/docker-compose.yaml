@@ -47,9 +47,16 @@ services:
     depends_on:
       - matrix-postgres
     # restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fSs", "http://10.10.10.3:8008/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
     volumes:
       - ./synapse:/data
       - ./mautrix-telegram/registration.yaml:/data/brigres/telegram/registration.yaml
+      - ./mautrix-discord/registration.yaml:/data/brigres/discord/registration.yaml
     networks:
       default:
         ipv4_address: 10.10.10.3
@@ -60,7 +67,8 @@ services:
     build:
       context: ./element
     depends_on:
-      - matrix-synapse
+      matrix-synapse:
+        condition: service_healthy
     # restart: unless-stopped
     volumes:
       - ./element/config.json:/app/config.json
@@ -80,7 +88,21 @@ services:
       - ./mautrix-telegram:/data:z
     networks:
       default:
-        ipv4_address: 10.10.10.10
+        ipv4_address: 10.10.10.11
+
+  mautrix-discord:
+    image: dock.mau.dev/mautrix/discord:v0.2.0
+    container_name: mautrix-discord
+    build:
+      context: ./mautrix-discord
+    depends_on:
+      - matrix-element
+    # restart: unless-stopped
+    volumes:
+      - ./mautrix-discord:/data:z
+    networks:
+      default:
+        ipv4_address: 10.10.10.12
 
 networks:
   default:

@@ -3,4 +3,6 @@ src/synapse/media_store
 src/synapse/*.log.config
 src/synapse/*.signing.key
 src/mautrix-telegram/mautrix-telegram.db
+src/mautrix-discord/mautrix-discord.db
 **/*.secrets
+**/logs

@@ -20,6 +20,7 @@ Matrix is an open standard and communication protocol for real-time communicatio
     - $ELEMENTS_DOMAIN:         10.10.10.4   or elements.example.org
     - $ELEMENTS_PORT:           80
     - $MAUTRIX_TELEGRAM_DOMAIN: 10.10.10.11   or mautrix-telegram.example.org
+    - $MAUTRIX_DISCORD_DOMAIN: 10.10.10.12   or mautrix-discord.example.org
     - ###
     - # postgres settings
     - $POSTGRES_DB:          synapse

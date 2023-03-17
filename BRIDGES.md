@@ -123,7 +123,6 @@ bridge:
     permissions:
         '*': relaybot
         '@$USERNAME:$SYNAPSE_DOMAIN': admin
-        domain: user
 logging:
     version: 1
     formatters:
@@ -189,17 +188,6 @@ app_service_config_files:
 
 Add this route to all nginx servers.
 
-10. Set bot permissions to something meaningfull:
-
-```
-# ...
-bridge:
-    # ...
-    permissions:
-        '*': relaybot
-        '@$USERNAME:$SYNAPSE_DOMAIN': admin
-```
-
 10. Run `docker compose up` - no container should fail.
 
 11. Create e2ee room, click 'Invite' (not 'Add widgets, bridges & bots'), print `@$BOT_USERNAME:$SYNAPSE_DOMAIN` and click 'Send'.
@@ -251,8 +239,116 @@ Create a new room and invite the bot. To allow the bot to handle edit/delete act
 
 4. Print 'continue'. At this point, you should be able to send a message from matrix to telegram.
 
+
+
+
+
+
+
+
+
+
+
 ## Bridge: Discord <-> Matrix
 
+1. Create empty `./mautrix-discord` directory:
+```
+.
+├── crt/
+├── element/
+├── ngx/
+├── postgres/
+├── synapse/
+├── mautrix-discord/
+└── docker-compose.yaml
+```
+
+2. Add mautrix/discord to `./docker-compose.yaml`:
+```yaml
+# ./docker-compose.yaml
+mautrix-discord:
+  image: dock.mau.dev/mautrix/discord
+  container_name: mautrix-discord
+  build:
+    context: ./mautrix-discord
+  depends_on:
+    - matrix-element
+  # restart: unless-stopped
+  volumes:
+    - ./mautrix-discord:/data:z
+  networks:
+    default:
+      ipv4_address: $MAUTRIX_TELEGRAM_DOMAIN
+```
+
+3. `docker compose up` once to create `./mautrix-discord/config.yaml`. The `mautrix-discord` container will exit with code 0.
+
+4. This `./mautrix-discord/config.yaml` config is really big, so we'll start with much simpler configuration. Replace all the `./mautrix-discord/config.yaml` content with the following:
+
+```
+# Homeserver details.
+homeserver:
+    address: http://$SYNAPSE_DOMAIN:8008
+    domain: $SYNAPSE_DOMAIN
+
+appservice:
+    address: http://$MAUTRIX_DISCORD_DOMAIN:29334
+    database:
+        type: sqlite3-fk-wal
+        uri: file:/data/mautrix-discord.db?_txlock=immediate
+    bot:
+        username: discordbot
+
+bridge:
+    encryption:
+        allow: true
+        default: true
+    permissions:
+        "*": relay
+        "@$USERNAME:$SYNAPSE_DOMAIN": admin
+
+logging:
+    min_level: debug
+    writers:
+    - type: stdout
+      format: pretty-colored
+    - type: file
+      format: json
+      filename: ./logs/mautrix-discord.log
+      max_size: 100
+      max_backups: 10
+      compress: true
+```
+
+6. Run `docker compose up` - the `mautrix-discord` docker container should exit with code 0 and a message 'didn't find a registration file'.
+
+But it will:
+- - extend your `./mautrix-discord/config.yaml`. Read it again and check out that everything matches expected values
+- - generate `./mautrix-discord/registration.yaml`. This files generates by a bot, but consumes with synapse service
+
+Changes to `./mautrix-discord/config.yaml` will be reflected into `mautrix-discord/registration.yaml`, so:
+
+- mount it from `./mautrix-discord` directory into `matrix-synapse` container
+- rebuild the registration file each time you change the config file
+
+7. Add to `./docker-compose.yaml` the following:
+
+```yaml
+# ./docker-compose.yaml
+matrix-synapse:
+  # ...
+  volumes:
+      # ...
+      - ./mautrix-discord/registration.yaml:/data/brigres/discord/registration.yaml
+```
+
+8. Edit `./synapse/homeserver.yaml`, add to the root level:
+
+```yaml
+# ./synapse/homeserver.yaml
+app_service_config_files:
+  - /data/brigres/discord/registration.yaml
+```
 
 
 ## Known memes
