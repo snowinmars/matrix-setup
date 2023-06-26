@@ -130,7 +130,9 @@ To generate this tree (without files that will be generatel later), use the foll
 1. Create docker bridge network, this is so all the system services can be on their own isolated network:
    `docker network create --driver=bridge --subnet=10.10.10.0/24 --gateway=10.10.10.1 matrix_net`
 
-2. Use the following template:
+   Beware: `docker compose down` removes the network. You can't just `docker compose up` it again: create the network and then run the containers.
+
+3. Use the following template:
 
 ```yaml
 # ./docker-compose.yaml
@@ -142,8 +144,6 @@ services:
     build:
       context: ./postgres
       dockerfile: ./Dockerfile
-    ports:
-      - '5432:5432'
     # restart: unless-stopped
     volumes:
       - ./postgres/postgresdata:/var/lib/postgresql/data
@@ -162,9 +162,6 @@ services:
     image: matrixdotorg/synapse:v1.77.0
     build:
       context: ./synapse
-    ports:
-      - '8080:8080'
-      - '8008:8008'
     depends_on:
       - matrix-postgres
     # restart: unless-stopped
@@ -376,7 +373,7 @@ server {
         break;
     }
 
-    return 200 'hello';
+    return 200 'hello'; # beware: this line will override acme challenge flow. Drop it, if you need to test acme
 }
 ```
 
