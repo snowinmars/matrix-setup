@@ -142,10 +142,9 @@ services:
     build:
       context: ./postgres
       dockerfile: ./Dockerfile
+    ports:
+      - '5432:5432'
     # restart: unless-stopped
-    networks:
-      default:
-        ipv4_address: $POSTGRES_DOMAIN
     volumes:
       - ./postgres/postgresdata:/var/lib/postgresql/data
     # These will be used in homeserver.yaml later on
@@ -154,12 +153,18 @@ services:
       - POSTGRES_USER=$POSTGRES_USER
       - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
       - POSTGRES_INITDB_ARGS=$POSTGRES_INITDB_ARGS
-
+    networks:
+      default:
+        ipv4_address: $POSTGRES_DOMAIN
+    
   matrix-synapse:
     container_name: matrix-synapse
     image: matrixdotorg/synapse:v1.77.0
     build:
       context: ./synapse
+    ports:
+      - '8080:8080'
+      - '8008:8008'
     depends_on:
       - matrix-postgres
     # restart: unless-stopped
