@@ -511,7 +511,7 @@ if ($request_method = 'OPTIONS') {
 # ./ngx/default.conf
 server {
     listen 80;
-    server_name $NGX_DOMAIN www.$NGX_DOMAIN;
+    server_name $NGX_DOMAIN;
 
     location ^~ /.well-known/acme-challenge/ {
         allow all;
@@ -524,57 +524,35 @@ server {
 }
 
 server {
-  listen 443 ssl http2;
-  listen [::]:443 ssl http2;
-  server_name $SYNAPSE_DOMAIN;
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    http2 on;
+    server_name $NGX_DOMAIN;
 
-  include /etc/nginx/https.conf;
+    include /etc/nginx/https.conf;
 
-  location /_matrix {
-    proxy_pass http://$SYNAPSE_DOMAIN:$SYNAPSE_PORT;
-    include /etc/nginx/cors.conf;
-  }
+    location /_matrix {
+        proxy_pass http://$SYNAPSE_DOMAIN:$SYNAPSE_PORT;
+        include /etc/nginx/cors.conf;
+    }
 
-  # TODO [snow]: why? is it typo? Should it be here at all?
-  location /.well-known {
-    proxy_pass http://$SYNAPSE_DOMAIN:$SYNAPSE_PORT;
-    include /etc/nginx/cors.conf;
-  }
+    location /_synapse/client {
+        proxy_pass http://$SYNAPSE_DOMAIN:$SYNAPSE_PORT;
+        include /etc/nginx/cors.conf;
+    }
 
-  location /_synapse/client {
-    proxy_pass http://$SYNAPSE_DOMAIN:$SYNAPSE_PORT;
-    include /etc/nginx/cors.conf;
-  }
+    location / {
+        proxy_pass http://$ELEMENTS_DOMAIN:$ELEMENTS_PORT;
+        include /etc/nginx/cors.conf;
+    }
+
+    location ^~ /.well-known/acme-challenge/ {
+        allow all;
+        default_type "text/plain";
+        alias /var/www/html/acme-challenge/;
+        break;
+    }
 }
-
-server {
-  listen 443 ssl http2;
-  listen [::]:443 ssl http2;
-  server_name $ELEMENTS_DOMAIN;
-
-  include /etc/nginx/https.conf;
-
-  location / {
-    proxy_pass http://$ELEMENTS_DOMAIN:$ELEMENTS_PORT;
-    include /etc/nginx/cors.conf;
-  }
-}
-
-server {
-  listen 443 ssl http2;
-  listen [::]:443 ssl http2;
-  server_name $NGX_DOMAIN www.$NGX_DOMAIN;
-
-  include /etc/nginx/https.conf;
-
-  location ^~ /.well-known/acme-challenge/ {
-      allow all;
-      default_type "text/plain";
-      alias /var/www/html/acme-challenge/;
-      break;
-  }
-}
-
 ```
 9. Run `docker compose up`. Check out `https://$NGX_DOMAIN`, login with the created used.
 
