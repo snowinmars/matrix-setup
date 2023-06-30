@@ -105,5 +105,10 @@ services:
         ipv4_address: 10.10.10.12
 
 networks:
-  default:
-    name: matrix_net
+  matrix_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: "10.10.10.0/24"
+          gateway: "10.10.10.1"
