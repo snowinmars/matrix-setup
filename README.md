@@ -127,13 +127,6 @@ To generate this tree (without files that will be generatel later), use the foll
 
 ### Run empty servers
 
-1. Create docker bridge network, this is so all the system services can be on their own isolated network:
-   `docker network create --driver=bridge --subnet=10.10.10.0/24 --gateway=10.10.10.1 matrix_net`
-
-   Beware: `docker compose down` removes the network. You can't just `docker compose up` it again: create the network and then run the containers.
-
-3. Use the following template:
-
 ```yaml
 # ./docker-compose.yaml
 version: '2.3'
@@ -186,8 +179,13 @@ services:
         ipv4_address: $ELEMENTS_DOMAIN
 
 networks:
-  default:
-    name: matrix_net
+  matrix_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: "10.10.10.0/24"
+          gateway: "10.10.10.1"
 ```
 
 3. It should work fine with default postgres image, but postgres could complain about UTF locale, so:
