@@ -1,0 +1,11 @@
+{
+  "allowed_servers": [
+    "YourMatrixServerDomain.com"
+  ],
+  "defaultmailcheckinterval": 30,
+  "htmldefault": false,
+  "markdownenabledbydefault": true,
+  "matrixserver": "matrix.org",
+  "matrixuserid": "@m:matrix.org",
+  "matrixuserpassword": "AverySecretPassword21!"
+}

@@ -1,0 +1,1 @@
+FROM vectorim/element-web:v1.11.39

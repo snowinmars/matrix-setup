@@ -1,12 +1,85 @@
-version: '2.3'
+version: '3.8'
 services:
+  matrix-postgres:
+    container_name: matrix-postgres
+    image: snowinmars/matrix-postgres:1.0.0
+    hostname: matrix-postgres
+    build:
+      context: ./postgres
+      dockerfile: ./Dockerfile
+    # restart: unless-stopped
+    volumes:
+      - ./postgres/postgresdata:/var/lib/postgresql/data
+    # These will be used in homeserver.yaml later on
+    environment:
+      - POSTGRES_DB=synapse
+      - POSTGRES_USER=synapse
+      - POSTGRES_PASSWORD=kljfdgkjbflkbjnlkdjfhg
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "db_prod"]
+      interval: 10s
+      timeout: 10s
+      retries: 2
+      start_period: 10s
+      start_interval: 5s
+    
+  matrix-synapse:
+    container_name: matrix-synapse
+    image: snowinmars/matrix-synapse:1.0.0
+    hostname: matrix-synapse
+    build:
+      context: ./synapse
+      dockerfile: ./Dockerfile
+    depends_on:
+      matrix-postgres:
+        condition: service_healthy
+    ports:
+    # only 8448 port should be exposed to host: google 'federation tester'. If you don't need it, do not expose the port.
+      - '8448:8448'
+    # restart: unless-stopped
+    volumes:
+      - ./synapse:/data
+    healthcheck:
+      test: ["CMD", "curl", "-fSs", "http://localhost:8008/health"]
+      interval: 10s
+      timeout: 10s
+      retries: 2
+      start_period: 10s
+      start_interval: 5s
+
+  matrix-element:
+    container_name: matrix-element
+    image: snowinmars/matrix-element:1.0.0
+    hostname: matrix-element
+    build:
+      context: ./element
+      dockerfile: ./Dockerfile
+    depends_on:
+      matrix-synapse:
+        condition: service_healthy
+    # restart: unless-stopped
+    volumes:
+      - ./element/config.json:/app/config.json
+    healthcheck:
+      test: ["CMD-SHELL", "wget -O /dev/null http://localhost || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 2
+      start_period: 10s
+      start_interval: 5s
+
   matrix-ngx:
     container_name: matrix-ngx
     image: snowinmars/matrix-ngx:1.0.0
+    hostname: matrix-ngx
     # restart: unless-stopped
     build:
       context: ./ngx
       dockerfile: ./Dockerfile
+    depends_on:
+      matrix-element:
+        condition: service_healthy
     ports:
       - '80:80'
       - '443:443'
@@ -16,94 +89,14 @@ services:
       - ./ngx/cors.conf:/etc/nginx/cors.conf
       - ./ngx/acme-challenge:/var/www/html/acme-challenge
       - ./crt/letsencrypt:/etc/letsencrypt
-    networks:
-      default:
-        ipv4_address: 10.10.10.100
-
-  matrix-postgres:
-    container_name: matrix-postgres
-    image: snowinmars/matrix-postgres:1.0.0
-    build:
-      context: ./postgres
-      dockerfile: ./Dockerfile
-    # restart: unless-stopped
-    networks:
-      default:
-        ipv4_address: 10.10.10.2
-    volumes:
-      - ./postgres/postgresdata:/var/lib/postgresql/data
-    # These will be used in homeserver.yaml later on
-    environment:
-      - POSTGRES_DB=synapse
-      - POSTGRES_USER=synapse
-      - POSTGRES_PASSWORD=kljfdgkjbflkbjnlkdjfhg
-      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C
-
-  matrix-synapse:
-    container_name: matrix-synapse
-    image: matrixdotorg/synapse:v1.77.0
-    build:
-      context: ./synapse
-    depends_on:
-      - matrix-postgres
-    # restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-fSs", "http://10.10.10.3:8008/health"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
-      start_period: 5s
-    volumes:
-      - ./synapse:/data
-      - ./mautrix-telegram/registration.yaml:/data/brigres/telegram/registration.yaml
-      - ./mautrix-discord/registration.yaml:/data/brigres/discord/registration.yaml
-    networks:
-      default:
-        ipv4_address: 10.10.10.3
-
-  matrix-element:
-    container_name: matrix-element
-    image: vectorim/element-web:v1.11.23
-    build:
-      context: ./element
-    depends_on:
-      matrix-synapse:
-        condition: service_healthy
-    # restart: unless-stopped
-    volumes:
-      - ./element/config.json:/app/config.json
-    networks:
-      default:
-        ipv4_address: 10.10.10.4
-
-  mautrix-telegram:
-    image: dock.mau.dev/mautrix/telegram:v0.13.0
-    container_name: mautrix-telegram
-    build:
-      context: ./mautrix-telegram
-    depends_on:
-      - matrix-element
-    # restart: unless-stopped
-    volumes:
-      - ./mautrix-telegram:/data:z
-    networks:
-      default:
-        ipv4_address: 10.10.10.11
-
-  mautrix-discord:
-    image: dock.mau.dev/mautrix/discord:v0.2.0
-    container_name: mautrix-discord
-    build:
-      context: ./mautrix-discord
-    depends_on:
-      - matrix-element
-    # restart: unless-stopped
-    volumes:
-      - ./mautrix-discord:/data:z
-    networks:
-      default:
-        ipv4_address: 10.10.10.12
+      test: ["CMD-SHELL", "wget -O /dev/null http://localhost || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 2
+      start_period: 10s
+      start_interval: 5s
 
 networks:
   default:
-    name: matrix_net
+    driver: bridge

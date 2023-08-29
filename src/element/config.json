@@ -1,13 +1,15 @@
 {
   "default_server_config": {
     "m.homeserver": {
-       "base_url": "http://10.10.10.100",
-       "server_name": "10.10.10.100"
+      "base_url": "http://localhost",
+      "server_name": "localhost"
     },
     "m.identity_server": {
-       "base_url": "https://vector.im"
+      "base_url": "https://vector.im"
     }
   },
+  "disable_3pid_login": true,
+  "disable_guests": true,
   "brand": "Element",
   "integrations_ui_url": null,
   "integrations_rest_url": null,

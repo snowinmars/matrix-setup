@@ -1,8 +1,8 @@
 id: discord
 url: http://10.10.10.12:29334
-as_token: $MAUTRIX_TELEGRAM_REGISTRATION_AS_TOKEN
-hs_token: $MAUTRIX_TELEGRAM_REGISTRATION_HS_TOKEN
-sender_localpart: $MAUTRIX_TELEGRAM_REGISTRATION_SENDER_LOCALPART
+as_token: iimnx6FrqYeWiNheELuwj98xC1GDI9rxxQZKAlvVLeVSng9yieTNfJisZwPhRNcI
+hs_token: VSCoCvhaFX3KKU5RGgP8yU6XGJfhtes3Ywq1EkkkWJt7XrguCxG0EdGLvZALQgaN
+sender_localpart: o1J0Yxj6PK7VaM9aYTyPzudlw1Vml46C
 rate_limited: false
 namespaces:
     users:

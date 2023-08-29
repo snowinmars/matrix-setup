@@ -9,7 +9,7 @@
 # For more information on how to configure Synapse, including a complete accounting of
 # each option, go to docs/usage/configuration/config_documentation.md or
 # https://matrix-org.github.io/synapse/latest/usage/configuration/config_documentation.html
-server_name: "10.10.10.3"
+server_name: "localhost"
 pid_file: /data/homeserver.pid
 listeners:
   - port: 8008
@@ -25,19 +25,16 @@ database:
     database: synapse
     user: synapse
     password: kljfdgkjbflkbjnlkdjfhg
-    host: 10.10.10.2
+    host: matrix-postgres
     cp_min: 5
     cp_max: 10
-log_config: "/data/10.10.10.3.log.config"
+log_config: "/data/localhost.log.config"
 media_store_path: /data/media_store
-registration_shared_secret: REMOVED FROM GIT
+registration_shared_secret: "O^-Hocd6^YdPiAwr5ZVHiUHLp2-6CD9;priEY0*bzlXIii*gWJ"
 report_stats: true
-macaroon_secret_key: REMOVED FROM GIT
-form_secret: REMOVED FROM GIT
-signing_key_path: "/data/10.10.10.3.signing.key"
-app_service_config_files:
-  - /data/brigres/telegram/registration.yaml
-  - /data/brigres/discord/registration.yaml
+macaroon_secret_key: "3Z9BXt&0Uy@N9bl6Ep1Zjr:Str3I_=Pbj8U3A#-SruZNjO4v3_"
+form_secret: "mEEiFhbVEGxyKjR2C8@Gzq~M7HY*j:x,KiA14pNiLG_:4Ti;uq"
+signing_key_path: "/data/localhost.signing.key"
 trusted_key_servers:
   - server_name: "matrix.org"
 

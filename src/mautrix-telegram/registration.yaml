@@ -1,6 +1,6 @@
 id: telegram
-as_token: REMOVED FROM GIT
-hs_token: REMOVED FROM GIT
+as_token: 1BqQDmr6DKqd47_vycKlAOoQrIL2avLpZyt9UBj_f2C-ZeCE5cGToOpJx2MBTuPr
+hs_token: JBR_ExhD0BRXTX7-vQXanUqI1BznMaNVZrd4VXIAIYyEfVtcAuniRFrEYgzNcEnK
 namespaces:
     users:
     - exclusive: true
@@ -10,8 +10,8 @@ namespaces:
     aliases:
     - exclusive: true
       regex: \#telegram_.*:10\.10\.10\.3
-url: http://10.10.10.10:29317
-sender_localpart: REMOVED FROM GIT
+url: http://10.10.10.11:29317
+sender_localpart: DnBmPN5-XnVpYvMePdkIGmltSjsV5hRSOXdosBzp7q_13GQc2zWvLrYTVJDOEDVa
 rate_limited: false
 de.sorunome.msc2409.push_ephemeral: true
 push_ephemeral: true

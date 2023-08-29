@@ -76,18 +76,24 @@ Cons:
 ```yaml
 # ./docker-compose.yaml
 mautrix-telegram:
-  image: dock.mau.dev/mautrix/telegram:v0.13.0
+  image: snowinmars/mautrix-telegram:1.0.0
   container_name: mautrix-telegram
+  hostname: mautrix-telegram
   build:
     context: ./mautrix-telegram
+    dockerfile: ./Dockerfile
   depends_on:
-    - matrix-element
+    matrix-synapse:
+      condition: service_healthy
   # restart: unless-stopped
   volumes:
     - ./mautrix-telegram:/data:z
-  networks:
-    default:
-      ipv4_address: $MAUTRIX_TELEGRAM_DOMAIN
+  # TODO [snow]: add healthcheck
+```
+
+3. Add mautrix/telegram Dockerfile:
+```dockerfile
+FROM dock.mau.dev/mautrix/telegram:v0.13.0
 ```
 
 3. `docker compose up` once to create `./mautrix-telegram/config.yaml`. The `mautrix-telegram` container will exit with code 0.
@@ -101,16 +107,16 @@ mautrix-telegram:
 ```yaml
 # ./mautrix-telegram/config.yaml
 homeserver:
-    address: http://$SYNAPSE_DOMAIN:8008 # beware of port!
-    domain:  $SYNAPSE_DOMAIN
+    address: http://matrix-synapse:8008
+    domain:  $NGX_DOMAIN
 appservice:
-    address:  http://$MAUTRIX_TELEGRAM_DOMAIN:29317
+    address:  http://mautrix-telegram:29317
     database: sqlite:////data/mautrix-telegram.db
     bot_username: $BOT_USERNAME
     public:
         enabled:  true
         prefix:   /telegram-bridge
-        external: http(s)://$NGX_DOMAIN/telegram-bridge
+        external: https://$NGX_DOMAIN/telegram-bridge # or http
 telegram:
     api_id: $TELEGRAM_API_ID
     api_hash: $TELEGRAM_API_HASH
@@ -122,7 +128,7 @@ bridge:
         default: true
     permissions:
         '*': relaybot
-        '@$USERNAME:$SYNAPSE_DOMAIN': admin
+        '@$USERNAME:$NGX_DOMAIN': admin
 logging:
     version: 1
     formatters:
@@ -150,8 +156,8 @@ logging:
 6. Run `docker compose up` - the `mautrix-telegram` docker container should exit with code 0 and a message 'didn't find a registration file'.
 
 But it will:
-- - extend your `./mautrix-telegram/config.yaml`. Read it again and check out that everything matches expected values
-- - generate `./mautrix-telegram/registration.yaml`. This files generates by a bot, but consumes with synapse service
+- extend your `./mautrix-telegram/config.yaml`. Read it again and check out that everything matches expected values
+- generate `./mautrix-telegram/registration.yaml`. This files generates by a bot, but consumes with synapse service
 
 Changes to `./mautrix-telegram/config.yaml` will be reflected into `mautrix-telegram/registration.yaml`, so:
 
@@ -182,7 +188,7 @@ app_service_config_files:
 ```nginx
 # ./ngx/default.conf
     location /telegram-bridge {
-        proxy_pass http://$MAUTRIX_TELEGRAM_DOMAIN:29317;
+        proxy_pass http://mautrix-telegram:29317;
     }
 ```
 
@@ -190,7 +196,7 @@ Add this route to all nginx servers.
 
 10. Run `docker compose up` - no container should fail.
 
-11. Create e2ee room, click 'Invite' (not 'Add widgets, bridges & bots'), print `@$BOT_USERNAME:$SYNAPSE_DOMAIN` and click 'Send'.
+11. Create e2ee room, click 'Invite' (not 'Add widgets, bridges & bots'), print `@$BOT_USERNAME:$NGX_DOMAIN` and click 'Send'.
 
 The bot should be added into the room without errors. There should be two users in the rooms now: you and the bot. If it's true, you should be able to chat with the bot without prefixes. If it's not true, you should prefix your command with `./mautrix-telegram/config.yaml -> bridge -> command_prefix` (`!tg` by default).
 
@@ -241,14 +247,6 @@ Create a new room and invite the bot. To allow the bot to handle edit/delete act
 
 
 
-
-
-
-
-
-
-
-
 ## Bridge: Discord <-> Matrix
 
 1. Create empty `./mautrix-discord` directory:
@@ -267,18 +265,24 @@ Create a new room and invite the bot. To allow the bot to handle edit/delete act
 ```yaml
 # ./docker-compose.yaml
 mautrix-discord:
-  image: dock.mau.dev/mautrix/discord
+  image: snowinmars/mautrix-discord:1.0.0
   container_name: mautrix-discord
+  hostname: mautrix-discord
   build:
     context: ./mautrix-discord
+    dockerfile: ./Dockerfile
   depends_on:
-    - matrix-element
+    matrix-synapse:
+      condition: service_healthy
   # restart: unless-stopped
   volumes:
     - ./mautrix-discord:/data:z
-  networks:
-    default:
-      ipv4_address: $MAUTRIX_TELEGRAM_DOMAIN
+  # TODO [snow]: add healthcheck
+```
+
+3. Create mautrix/dicord Dockerfile
+```dockerfile
+FROM dock.mau.dev/mautrix/discord
 ```
 
 3. `docker compose up` once to create `./mautrix-discord/config.yaml`. The `mautrix-discord` container will exit with code 0.
@@ -286,13 +290,13 @@ mautrix-discord:
 4. This `./mautrix-discord/config.yaml` config is really big, so we'll start with much simpler configuration. Replace all the `./mautrix-discord/config.yaml` content with the following:
 
 ```
-# Homeserver details.
+# mautrix-discord/config.yaml
 homeserver:
-    address: http://$SYNAPSE_DOMAIN:8008
-    domain: $SYNAPSE_DOMAIN
+    address: http://matrix-synapse:8008 # or http
+    domain: $NGX_DOMAIN
 
 appservice:
-    address: http://$MAUTRIX_DISCORD_DOMAIN:29334
+    address: http://mautrix-discord:29334
     database:
         type: sqlite3-fk-wal
         uri: file:/data/mautrix-discord.db?_txlock=immediate
@@ -305,7 +309,7 @@ bridge:
         default: true
     permissions:
         "*": relay
-        "@$USERNAME:$SYNAPSE_DOMAIN": admin
+        "@$USERNAME:$NGX_DOMAIN": admin
 
 logging:
     min_level: debug
