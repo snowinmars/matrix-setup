@@ -6,3 +6,5 @@ src/mautrix-telegram/mautrix-telegram.db
 src/mautrix-discord/mautrix-discord.db
 **/*.secrets
 **/logs
+src/wireguard/*
+!src/wireguard/Dockerfile

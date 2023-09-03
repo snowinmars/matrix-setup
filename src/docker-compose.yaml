@@ -80,9 +80,6 @@ services:
     depends_on:
       matrix-element:
         condition: service_healthy
-    ports:
-      - '80:80'
-      - '443:443'
     volumes:
       - ./ngx/default.conf:/etc/nginx/conf.d/default.conf
       - ./ngx/https.conf:/etc/nginx/https.conf
@@ -96,6 +93,39 @@ services:
       retries: 2
       start_period: 10s
       start_interval: 5s
+
+  wireguard:
+    container_name: wireguard
+    image: snowinmars/wireguard:1.0.0
+    hostname: wireguard
+    build:
+      context: ./wireguard
+      dockerfile: ./Dockerfile
+    depends_on:
+      matrix-ngx:
+        condition: service_healthy
+    # restart: unless-stopped
+    ports:
+      - 51820:51820/udp
+    volumes:
+      - ./wireguard:/config
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - SERVERURL=localhost
+      - SERVERPORT=51820
+      - PEERS=1
+      - PEERDNS=auto
+      - INTERNAL_SUBNET=10.13.13.0
+      - ALLOWEDIPS=0.0.0.0/0 #optional
+      - PERSISTENTKEEPALIVE_PEERS=all #optional
+      - LOG_CONFS=true #optional
 
 networks:
   default:

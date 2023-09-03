@@ -88,6 +88,8 @@ See docker docs. Install the NEWEST docker compose.
 
 ## Install Matrix and Element
 
+    If you test the system, do it as you want. If you run the system as a production ready, create a new volume and use it only for matrix. See [Network.md](Network) for more information.
+
 Here and below you will use files inside some directory `.` The result tree will look something like:
 ```
 .
@@ -491,7 +493,9 @@ server {
 
     In this step you can use any certbot flow you know. The point is to get ssl files.
 
-1. Install and run `certbot` to any pc, it does not have to be your production host: `sudo certbot certonly --manual`. If you want to clear previous certificates, use `sudo certbot delete`
+1. Install and run `certbot` to any pc, it does not have to be your production host. Run `sudo certbot certonly --manual` for `domain.com *.domain.com`.
+
+  If you want to clear previous certificates, use `sudo certbot delete`
 
 2. Ask `certbot` to generate certificates for `*.$NGX_DOMAIN $NGX_DOMAIN`. It will produce acme files and/or DNS TXT records, so you have to
 
